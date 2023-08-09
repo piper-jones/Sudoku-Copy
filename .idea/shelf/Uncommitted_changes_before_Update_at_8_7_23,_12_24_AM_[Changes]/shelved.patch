@@ -1,0 +1,30 @@
+Index: Sudoku_Project17/board.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import pygame\npygame.init()\nimport SudokuGenerator from sudoku_generator\nSG = SudokuGenerator()\nimport Cell from cell\nfrom variables import *\nclass Board:\n    # Constructor for the Board class.\n    # screen is a window from PyGame.\n    # difficulty is a variable to indicate if the user chose easy, medium, or hard.\n    def __init__(self, width, height, screen, difficulty):\n        self.width = width\n        self.height = height\n        self.screen = screen\n        self.difficulty = difficulty\n\n    #Draws an outline of the Sudoku grid, with bold lines to delineate the 3x3 boxes.\n    # Draws every cell on this board.\n    def draw(self):\n        black = pygame.Color(\"black\")\n        white = pygame.Color(\"white\")\n\n        # draws indiviudal cells\n        y_place = 0\n        for row in SG.get_board():\n            cell_size = 100\n            x_place = 0\n            for col in SG.get_board()[row]:\n                pygame.draw.rect(self.screen, white, pygame.Rect(x_place, y_place, cell_size, cell_size))\n                x_place += 100\n            y_place += 100\n\n\n        # draws thick lines\n        pygame.draw.line(self.screen, black, (0, 3), (900, 3), thick_line)\n        pygame.draw.line(self.screen, black, (0, 303), (900, 303), thick_line)\n        pygame.draw.line(self.screen, black, (0, 603), (900, 603), thick_line)\n        pygame.draw.line(self.screen, black, (0, 897), (900, 897), thick_line)\n\n        pygame.draw.line(self.screen, black, (3, 0), (3, 900), thick_line)\n        pygame.draw.line(self.screen, black, (303, 0), (303, 900), thick_line)\n        pygame.draw.line(self.screen, black, (603, 0), (603, 900), thick_line)\n        pygame.draw.line(self.screen, black, (897, 0), (897, 900), thick_line)\n\n        # draws thin lines\n        for i in range(8):\n            location = 100\n            pygame.draw.line(self.screen, black, (0, location), (900, location), thin_line)\n            pygame.draw.line(self.screen, black, (location, 0), (location, 900), thin_line)\n            location += 100\n\n\n    #Marks the cell at (row, col) in the board as the current selected cell.\n    #Once a cell has been selected, the user can edit its value or sketched value.\n    def select(self, row, col):\n        pass\n\n    #If a tuple of (x, y) coordinates is within the displayed board, this function returns a tuple of the (row, col)\n    #of the cell which was clicked. Otherwise, this function returns None.\n    def click(self, x, y):\n        pass\n\n    #Clears the value cell. Note that the user can only remove the cell values and sketched value that are\n    #filled by themselves.\n    def clear(self):\n        pass\n\n    #Sets the sketched value of the current selected cell equal to user entered value.\n    #It will be displayed at the top left corner of the cell using the draw() function.\n    def sketch(self, value):\n        pass\n\n    # Sets the value of the current selected cell equal to user entered value.\n    # Called when the user presses the Enter key.\n    def place_number(self, value):\n        pass\n\n    # Reset all cells in the board to their original values (0 if cleared, otherwise the corresponding digit).\n    def reset_to_original(self):\n        pass\n\n    # Returns a Boolean value indicating whether the board is full or not.\n    def is_full(self):\n        pass\n\n    # Updates the underlying 2D board with the values in all cells.\n    def update_board(self):\n        pass\n\n    # Finds an empty cell and returns its row and col as a tuple (x, y).\n    def find_empty(self):\n        pass\n\n    # Check whether the Sudoku board is solved correctly.\n    def check_board(self):\n        pass\n\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/Sudoku_Project17/board.py b/Sudoku_Project17/board.py
+--- a/Sudoku_Project17/board.py	(revision d1e6cf14153ea8be9d0dea1b519aace3e4092f0c)
++++ b/Sudoku_Project17/board.py	(date 1691378877610)
+@@ -1,8 +1,8 @@
+ import pygame
+ pygame.init()
+-import SudokuGenerator from sudoku_generator
++from sudoku_generator import SudokuGenerator
+ SG = SudokuGenerator()
+-import Cell from cell
++from cell import Cell
+ from variables import *
+ class Board:
+     # Constructor for the Board class.
+@@ -73,6 +73,8 @@
+     # Sets the value of the current selected cell equal to user entered value.
+     # Called when the user presses the Enter key.
+     def place_number(self, value):
++        Cell.self.set_cell_value(value)
++        self.update_board()
+         pass
+ 
+     # Reset all cells in the board to their original values (0 if cleared, otherwise the corresponding digit).
