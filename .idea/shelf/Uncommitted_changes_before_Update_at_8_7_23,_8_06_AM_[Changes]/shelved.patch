@@ -1,0 +1,83 @@
+Index: Sudoku_Project17/sudoku.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>\nimport pygame\n\nfrom board import Board\nfrom sudoku_generator import generate_sudoku\n\npygame.init()\nfrom variables import *\n\nscreen = pygame.display.set_mode((900, 900))\nboard = Board(900, 900, screen, 1)\n\nrunning = True\nwhile running:\n    mouseX, mouseY = pygame.mouse.get_pos()\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            running = False\n        if event.type == pygame.MOUSEBUTTONDOWN:\n            board.click(mouseX, mouseY)\n            # print(f\"{mouseX} {mouseY}\")\n\n    board.draw()\n    # board.select(1,1)\n\n    pygame.display.flip()\n\npygame.quit()
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/Sudoku_Project17/sudoku.py b/Sudoku_Project17/sudoku.py
+--- a/Sudoku_Project17/sudoku.py	(revision 4bd56641d66d2017948b693b5cb6ac8b93bf2c90)
++++ b/Sudoku_Project17/sudoku.py	(date 1691409963988)
+@@ -19,6 +19,31 @@
+         if event.type == pygame.MOUSEBUTTONDOWN:
+             board.click(mouseX, mouseY)
+             # print(f"{mouseX} {mouseY}")
++        if event.type == pygame.KEYDOWN:
++            if event.type and pygame.K_1:
++                board.place_number(1)
++            if event.type and pygame.K_2:
++                board.place_number(2)
++            '''
++            if event.type and pygame.K_3:
++                board.place_number(3)
++            if event.type and pygame.K_4:
++                board.place_number(4)
++            if event.type and pygame.K_5:
++                board.place_number(5)
++            if event.type and pygame.K_6:
++                board.place_number(6)
++            if event.type and pygame.K_7:
++                board.place_number(7)
++            if event.type and pygame.K_8:
++                board.place_number(8)
++            if event.type and pygame.K_9:
++                board.place_number(9)
++            '''
++
++
++
++
+ 
+     board.draw()
+     # board.select(1,1)
+Index: Sudoku_Project17/board.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import pygame\n\nfrom sudoku_generator import generate_sudoku as gs\nfrom sudoku_generator import SudokuGenerator\n\nfrom variables import *\nfrom cell import Cell\n\npygame.init()\n\n\nclass Board:\n\n    # Constructor for the Board class.\n    # screen is a window from PyGame.\n    # difficulty is a variable to indicate if the user chose easy, medium, or hard.\n    def __init__(self, width, height, screen, difficulty):\n        self.width = width\n        self.height = height\n        self.screen = screen\n        self.difficulty = difficulty\n        removed = 30\n        if difficulty == 'easy':\n            removed = 30\n        elif difficulty == 'medium':\n            removed = 40\n        elif difficulty == 'hard':\n            removed = 50\n\n        self.current_board = gs(9, removed)\n        print(f\"{self.current_board}\")\n        self.selected_cell = [0, 0]\n        self.original_board = self.current_board\n\n    # Draws an outline of the Sudoku grid, with bold lines to delineate the 3x3 boxes.\n    # Draws every cell on this board.\n    def draw(self):\n        black = pygame.Color(\"black\")\n        white = pygame.Color(\"white\")\n        red = pygame.Color(\"red\")\n\n        # draws indiviudal cells\n        y_place = 0\n        for row in range(9):\n            cell_size = 100\n            x_place = 0\n            for col in range(9):\n                pygame.draw.rect(self.screen, white, pygame.Rect(x_place, y_place, cell_size, cell_size))\n                x_place += 100\n            y_place += 100\n\n        # draws thick lines\n        pygame.draw.line(self.screen, black, (0, 2), (900, 2), thick_line)\n        pygame.draw.line(self.screen, black, (0, 303), (900, 303), thick_line)\n        pygame.draw.line(self.screen, black, (0, 603), (900, 603), thick_line)\n        pygame.draw.line(self.screen, black, (0, 897), (900, 897), thick_line)\n\n        pygame.draw.line(self.screen, black, (2, 0), (2, 900), thick_line)\n        pygame.draw.line(self.screen, black, (303, 0), (303, 900), thick_line)\n        pygame.draw.line(self.screen, black, (603, 0), (603, 900), thick_line)\n        pygame.draw.line(self.screen, black, (897, 0), (897, 900), thick_line)\n\n        # draws thin lines\n        location = 100\n        for i in range(9):\n            pygame.draw.line(self.screen, black, (0, location), (900, location), thin_line)\n            pygame.draw.line(self.screen, black, (location, 0), (location, 900), thin_line)\n            location += 100\n\n        if self.selected_cell != None:\n            pygame.draw.rect(self.screen, red, pygame.Rect((self.selected_cell[0] * 100), (self.selected_cell[1] * 100), 100, 100), width=6)\n\n        # draw text for numbers\n        pygame.font.init()\n        font = pygame.font.SysFont('Arial', 64)\n        for i in range(9):\n            for j in range(9):\n                if self.current_board[i][j] != 0:\n                    text = font.render(str(self.current_board[i][j]), True, black, None)\n                    self.screen.blit(text, (30+(100*j), 25+(100*i)))\n\n\n    # Marks the cell at (row, col) in the board as the current selected cell.\n    # Once a cell has been selected, the user can edit its value or sketched value.\n\n    def select(self, row, col):\n        # red = pygame.Color(\"red\")\n        # pygame.draw.rect(self.screen, red, pygame.Rect((row * 100), (col * 100), cell_size, cell_size), width=6)\n        self.selected_cell = [col, row]\n        print(f\"selected cell update: {self.selected_cell}\")\n\n    # If a tuple of (x, y) coordinates is within the displayed board, this function returns a tuple of the (row, col)\n    # of the cell which was clicked. Otherwise, this function returns None.\n    def click(self, x, y):\n        # cells are 100x100 pixels in size\n        if x > 900 or y > 900:\n            row = y // 100\n            col = x // 100\n            print(f\"selected cell check: {self.selected_cell} vs {[col, row]}\")\n            if self.selected_cell != [col, row]:\n                self.select(row, col)\n            return row, col\n        return None\n\n    # Clears the value cell. Note that the user can only remove the cell values and sketched value that are\n    # filled by themselves.\n    def clear(self):\n        while True:\n            self.sketch_val = None\n            self.set_value = None\n            break\n            #remember to add a function to main that returns true to this statment when a key is pressed\n\n    # Sets the sketched value of the current selected cell equal to user entered value.\n    # It will be displayed at the top left corner of the cell using the draw() function.\n    def sketch(self, value):\n        Cell.set_sketched_value(value)\n        Cell.sketch_val = True\n        Cell.draw()\n\n    # Sets the value of the current selected cell equal to user entered value.\n    # Called when the user presses the Enter key.\n    def place_number(self, value):\n        Cell.set_cell_value(value)\n        self.update_board()\n\n    # Reset all cells in the board to their original values (0 if cleared, otherwise the corresponding digit).\n    def reset_to_original(self):\n        self.board = self.original_board\n\n    # Returns a Boolean value indicating whether the board is full or not.\n    def is_full(self):\n        board = SudokuGenerator.get_board()\n        for i in board:\n            for y in board[i]:\n                if board[i][y] != 0:\n                    continue\n                else:\n                    return False\n        return True\n\n    # Updates the underlying 2D board with the values in all cells.\n    def update_board(self):\n        cells = Cell()\n        Cell.set_cell_value(cells.value)\n\n    # Finds an empty cell and returns its row and col as a tuple (x, y).\n    def find_empty(self):\n        board = SudokuGenerator.get_board()\n        empty_tup = ()\n        for i in board:\n            for y in board[i]:\n                if board[i][y] == 0:\n                    empty_tup = (i, y)\n                    return empty_tup\n\n\n    # Check whether the Sudoku board is solved correctly.\n    def check_board(self):\n        board = SudokuGenerator.get_board()\n        while self.is_full() is True:\n            for i in board:\n                for y in board[i]:\n                    if board[i][y] == self.original_board[i][y]:\n                        continue\n                    else:\n                        return False\n            return True\n        # don't forget to add a call of this function in main that checks if it returns true\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/Sudoku_Project17/board.py b/Sudoku_Project17/board.py
+--- a/Sudoku_Project17/board.py	(revision 4bd56641d66d2017948b693b5cb6ac8b93bf2c90)
++++ b/Sudoku_Project17/board.py	(date 1691409751547)
+@@ -93,7 +93,7 @@
+     # of the cell which was clicked. Otherwise, this function returns None.
+     def click(self, x, y):
+         # cells are 100x100 pixels in size
+-        if x > 900 or y > 900:
++        if y or x > 900:
+             row = y // 100
+             col = x // 100
+             print(f"selected cell check: {self.selected_cell} vs {[col, row]}")
+@@ -121,7 +121,8 @@
+     # Sets the value of the current selected cell equal to user entered value.
+     # Called when the user presses the Enter key.
+     def place_number(self, value):
+-        Cell.set_cell_value(value)
++        col,row = self.selected_cell
++        self.current_board[row][col] = value  # Update the value in the current_board
+         self.update_board()
+ 
+     # Reset all cells in the board to their original values (0 if cleared, otherwise the corresponding digit).
+@@ -141,8 +142,9 @@
+ 
+     # Updates the underlying 2D board with the values in all cells.
+     def update_board(self):
+-        cells = Cell()
+-        Cell.set_cell_value(cells.value)
++        # No need to create a new Cell instance here
++        # Update the current_board directly
++        self.current_board = self.current_board
+ 
+     # Finds an empty cell and returns its row and col as a tuple (x, y).
+     def find_empty(self):
